@@ -5,10 +5,20 @@ description = "parraellel neural network layer for binarization of ternarization
 authors = ["snow0821 <sosaror@gmail.com>"]
 license = "MIT"
 readme = "README.md"
+packages = [
+    { include = "plinear", from = "." },
+]
 
 [tool.poetry.dependencies]
 python = "^3.12"
+torch = "2.2.2"
+torchvision = "0.17.2"
+numpy = "2.0.0"
+scikit-learn = "^1.5.1"
+matplotlib = "^3.9.1"
 
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.2.2"
 
 [build-system]
 requires = ["poetry-core"]
