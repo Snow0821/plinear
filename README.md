@@ -8,23 +8,31 @@ You can install PLinear using pip:
 pip install plinear
 ```
 
-### idea inspired from
+### Idea inspired from
 
 https://arxiv.org/pdf/2402.17764?trk=public_post_comment-text
 
-### code inspired from
+### Code inspired from
 
 https://github.com/kyegomez/BitNet/blob/main/bitnet/bitlinear.py
 
 # Ideas and Road Map
 
-## parrallel neural network (PLinear)
+## Parrallel neural network (PLinear)
+
+#### Layer composition
 
 Binarizing ternary layers by making posNet and negNet and add them.
 
-No activation function required.
+Both are created with posNet, which returns 1 if the weight if over 0 and 0 else.
 
-Suggested usage :
+Result comes out with posNet - negNet to mimic ternary.
+
+Found out that tanh(weight) makes the model to fit in and learn without normalizing entire layer.
+
+No additional activation function used in test.
+
+#### Suggested usage
 
 ```
 import torch
@@ -49,7 +57,17 @@ print(model)
 
 ```
 
-###
+#### Test code for Mnist example
+
+```
+pytest -k mnist
+```
+
+Results can be found in tests/result_mnist.
+
+You are offered with precision, accuracy, recall per epochs.
+
+Also confusion matrix and full visualization of weights per epochs will be offered in animation.
 
 ## visualization (Not finised for documentation)
 
@@ -67,7 +85,13 @@ I guess vectorizing concepts and dynamically allocating them with layers would b
 
 ## complex layers (Only Idea)
 
-# Develope Note
+We can add two more layers parrallelly to express complex domain.
+
+There will be real output and complex output which can be used in many form.
+
+If the layer is complex, default complex part will be zero and it can be passed from previous layers ofcourse.
+
+# Developer Note
 
 ### 15, July, 2024
 
@@ -76,11 +100,22 @@ Checked plinear works on colab
 ### 16, July, 2024
 
 version 0.1.2.2.
+version 0.1.2.3.
 
 # changelog
 
-#### 0.1.1.2.
+#### 0.1.2.2.
 
 Documented readme.md
 
 Preflight testing done for mnist both layer and visualization.
+
+#### 0.1.2.3
+
+Integrated posNet, negNet functions to posNet.
+
+Layer now does posNet - negNet instead of posNet + negNet since negNet is not negative in real now.
+
+Weight is now processed with tanh and shows much stable learning curve.
+
+Removed test result from the git.

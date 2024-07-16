@@ -13,9 +13,9 @@ import os
 class SimpleNN(nn.Module):
     def __init__(self):
         super(SimpleNN, self).__init__()
-        self.fc1 = PLinear(28*28, 128)
-        self.fc2 = PLinear(128, 128)
-        self.fc3 = PLinear(128, 10)
+        self.fc1 = PLinear(28*28, 512)
+        self.fc2 = PLinear(512, 512)
+        self.fc3 = PLinear(512, 10)
 
     def forward(self, x):
         x = torch.flatten(x, 1)
@@ -40,9 +40,9 @@ def test_mnist(mnist_data):
 
     model = SimpleNN()
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.SGD(model.parameters(), lr=0.01)  # Basic SGD optimizer
+    optimizer = optim.SGD(model.parameters(), lr=1)  # Basic SGD optimizer
 
-    num_epochs = 100  # 에포크 수를 설정합니다.
+    num_epochs = 3  # 에포크 수를 설정합니다.
     accuracy_list = []
     recall_list = []
     precision_list = []
