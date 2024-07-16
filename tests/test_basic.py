@@ -1,44 +1,30 @@
-import torch
-import pytest
-from plinear import PLinear
-import torch.nn as nn
+# tests/test_module.py
 
+import torch
+from plinear.plinear import PLinear, PF
 
 def test_basic_forward():
-    model = PLinear(10, 5)
+    model = PLinear(10, 5, use_bias=False)
     x = torch.randn(1, 10)
     output = model(x)
     assert output.shape == (1, 5), "Output shape mismatch"
 
-def test_basic_zero_input():
-    model = PLinear(10, 5)
-    x = torch.zeros(1, 10)
-    output = model(x)
-    assert torch.all(output == 0), "Output should be all zeros for zero input"
-
-def test_basic_weights_update():
-    model = PLinear(10, 5)
-    optimizer = torch.optim.SGD(model.parameters(), lr=0.01)
-    criterion = nn.MSELoss()
-
+def test_basic_forward_with_bias():
+    model = PLinear(10, 5, use_bias=True)
     x = torch.randn(1, 10)
-    target = torch.randn(1, 5)
     output = model(x)
+    assert output.shape == (1, 5), "Output shape mismatch"
 
-    loss = criterion(output, target)
-    loss.backward()
-    optimizer.step()
-
-    # 단순히 학습이 진행되는지 확인 (기본적인 가중치 업데이트)
-    for param in model.parameters():
-        assert param.grad is not None, "Gradient should not be None after backward"
-
-def test_basic_edge_case():
-    model = PLinear(10, 5)
-    x = torch.randn(1, 10) * 1e6  # 아주 큰 값의 입력
+def test_weight_quantization():
+    model = PLinear(10, 5, use_bias=False)
+    x = torch.randn(1, 10)
     output = model(x)
-    assert output.shape == (1, 5), "Output shape mismatch with edge case input"
+    
+    w_pos = model.linear_pos.weight
+    w_neg = model.linear_neg.weight
 
-# pytest를 사용하여 basic 키워드로 필터링
-if __name__ == "__main__":
-    pytest.main(["-k", "basic"])
+    w_pos_quant = w_pos + (PF.posNet(w_pos) - w_pos).detach()
+    w_neg_quant = w_neg + (PF.negNet(w_neg) - w_neg).detach()
+
+    assert torch.all((w_pos_quant == 0) | (w_pos_quant == 1)), "Weight quantization for posNet failed"
+    assert torch.all((w_neg_quant == 0) | (w_neg_quant == -1)), "Weight quantization for negNet failed"

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "plinear"
-version = "0.1.2.1"
+version = "0.1.2.2"
 description = "parallel neural network layer for binarization of ternarization - quantized layers from the beginning"
 authors = ["your_name <your_email@example.com>"]
 license = "MIT"
@@ -15,6 +15,7 @@ torch = "^2.2.2"
 torchvision = "^0.17.2"
 torchaudio = "^2.2.2"
 numpy = "^1.25.2"
+imageio = "^2.34.2"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.2.2"
