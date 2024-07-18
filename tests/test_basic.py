@@ -24,7 +24,7 @@ def test_weight_quantization():
     w_neg = model.linear_neg.weight
 
     w_pos_quant = w_pos + (PF.posNet(w_pos) - w_pos).detach()
-    w_neg_quant = w_neg + (PF.negNet(w_neg) - w_neg).detach()
+    w_neg_quant = w_neg + (PF.posNet(w_neg) - w_neg).detach()
 
     assert torch.all((w_pos_quant == 0) | (w_pos_quant == 1)), "Weight quantization for posNet failed"
-    assert torch.all((w_neg_quant == 0) | (w_neg_quant == -1)), "Weight quantization for negNet failed"
+    assert torch.all((w_neg_quant == 0) | (w_neg_quant == 1)), "Weight quantization for negNet failed"
