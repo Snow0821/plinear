@@ -22,7 +22,7 @@ https://github.com/kyegomez/BitNet/blob/main/bitnet/bitlinear.py
 
 #### Layer composition
 
-Binarizing ternary layers by making posNet and negNet and add them.
+Binarizing ternary layers by making posNet and negNet and compute them.
 
 Both are created with posNet, which returns 1 if the weight if over 0 and 0 else.
 
@@ -32,7 +32,21 @@ Found out that tanh(weight) makes the model to fit in and learn without normaliz
 
 No additional activation function used in test.
 
-#### Suggested usage
+#### tanh makes learning much more stable (quite stunning if you see the curve.)
+
+![tanh](images/readme/plinear/tanh.svg)
+
+![posNet](images/readme/plinear/w_pos.svg)
+
+W_neg is calculated just as W_pos
+
+![Equation](images/readme/plinear/equation.svg)
+
+#### Learning w' - w as bitNet does
+
+![Learning](images/readme/plinear//learning.svg)
+
+#### Example usage
 
 ```
 import torch
@@ -64,29 +78,27 @@ You are offered with precision, accuracy, recall per epochs.
 
 Also confusion matrix and full visualization of weights per epochs will be offered in animation.
 
-## visualization (Not finised for documentation)
-
-## Brute Force optimization of 3 x 3 CNN (Only Idea)
-
-Since I parrallelized layers, each 3 x 3 CNN layer can be brute forced in 2^9 \* 2 weights for ternary, which is very cheap against previous models.
-
-Even the model is same, the layer is still at least 9 times smaller even if the model seeked through every cases.
-
-And we can reduce the model with simple searching tasks.
-
-I believe this can be used to vectorize images in proper size of vector which can be reused for image generation or more.
-
-I guess vectorizing concepts and dynamically allocating them with layers would be the final goal of this project.
-
-## complex layers
+## Complex layers
 
 parrellized 4 nn.Linears.
 
 2 for real and 2 for complex.
 
-real_result is calculated by real_input x real_neg - real_input x real_neg + complex_input x complex_neg - complex_input x complex_pos
+# Real and Complex Results
 
-complex_result is calculated by real_input x complex_pos - real_input x complex_neg + complex_input x real_pos - complex_input x real_neg
+## Real Result
+
+![Real Result](images/readme/complex/Rout_equation.svg)
+
+## Complex Result
+
+![Complex Result](images/readme/complex/Cout_equation.svg)
+
+### Notations
+
+![Notations](images/readme/complex/descriptions.svg)
+
+#### P.S.
 
 I used torch.zeros if there is no complex input to feed.
 
@@ -113,6 +125,26 @@ class SimpleNN(nn.Module):
         return real
 ```
 
+#### Test code for Mnist example
+
+```
+pytest -k mnist_c -s
+```
+
+## visualization (Not finised for documentation)
+
+## Brute Force optimization of 3 x 3 CNN (Only Idea)
+
+Since I parrallelized layers, each 3 x 3 CNN layer can be brute forced in 2^9 \* 2 weights for ternary, which is very cheap against previous models.
+
+Even the model is same, the layer is still at least 9 times smaller even if the model seeked through every cases.
+
+And we can reduce the model with simple searching tasks.
+
+I believe this can be used to vectorize images in proper size of vector which can be reused for image generation or more.
+
+I guess vectorizing concepts and dynamically allocating them with layers would be the final goal of this project.
+
 # Developer Note
 
 ### 15, July, 2024
@@ -123,6 +155,12 @@ Checked plinear works on colab
 
 version 0.1.2.2.
 version 0.1.2.3.
+
+### 19, July, 2024
+
+version 0.1.3.0 - PLinear_Complex
+
+fixed some documentaion
 
 # changelog
 
