@@ -162,5 +162,5 @@ cython_debug/
 #.idea/
 
 data/
-tests/result_mnist/
+tests/results/
 .DS_Store

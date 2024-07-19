@@ -19,13 +19,37 @@ def save_weight_image(layer, result_path, layer_index, epoch):
     plt.savefig(f"{layer_path}/epoch_{epoch+1}.png")
     plt.close()
 
-def create_animation_from_images(result_path, layer_index, num_epochs):
+def save_weight_image_complex(layer, result_path, layer_index, epoch):
+    layer_path = f"{result_path}/layer_{layer_index+1}"
+    os.makedirs(layer_path, exist_ok=True)
+
+    rp = PF.posNet(layer.real_pos.weight).cpu().numpy()
+    rn = PF.posNet(layer.real_neg.weight).cpu().numpy()
+    cp = PF.posNet(layer.complex_pos.weight).cpu().numpy()
+    cn = PF.posNet(layer.complex_neg.weight).cpu().numpy()
+
+    layerShape = layer.real_pos.weight.shape[0]
+
+    real = (rp - rn).reshape(layerShape, -1)
+    complex = (cp - cn).reshape(layerShape, -1)
+
+    plt.imshow(real, cmap='bwr', vmin=-1, vmax=1, aspect = 'auto')
+    plt.title(f'Real Weights - layer {layer_index + 1} - Epoch {epoch + 1}')
+    plt.savefig(f"{layer_path}/epoch_{epoch+1}_real.png")
+    plt.close()
+
+    plt.imshow(complex, cmap='bwr', vmin=-1, vmax=1, aspect = 'auto')
+    plt.title(f'Complex Weights - layer {layer_index + 1} - Epoch {epoch + 1}')
+    plt.savefig(f"{layer_path}/epoch_{epoch+1}_complex.png")
+    plt.close()
+
+def create_animation_from_images(result_path, layer_index, num_epochs, postfix=''):
     layer_path = f"{result_path}/layer_{layer_index+1}"
     images = []
     for epoch in range(num_epochs):
-        filename = f"{layer_path}/epoch_{epoch+1}.png"
+        filename = f"{layer_path}/epoch_{epoch+1}{postfix}.png"
         images.append(imageio.imread(filename))
-    imageio.mimsave(f"{result_path}/weights_viz_layer_{layer_index+1}.gif", images, duration=10000/num_epochs)
+    imageio.mimsave(f"{result_path}/weights_viz_layer_{layer_index+1}{postfix}.gif", images, duration=2000/num_epochs)
 
 def create_confusion_matrix_animation(confusion_matrices, result_path, num_epochs):
     fig, ax = plt.subplots(figsize=(10, 7))
@@ -42,7 +66,7 @@ def create_confusion_matrix_animation(confusion_matrices, result_path, num_epoch
         ax.set_xlabel('Predicted label')
 
     ani = FuncAnimation(fig, update_confusion_matrix, frames=np.arange(num_epochs), repeat = False)
-    writer=PillowWriter(fps=num_epochs / 10)
+    writer=PillowWriter(fps=num_epochs / 50)
     ani.save(result_path + "confusion_matrix.gif", writer=writer)
     plt.close(fig)
 
