@@ -6,23 +6,25 @@ import numpy as np
 from sklearn.metrics import confusion_matrix, accuracy_score, recall_score, precision_score
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
-from plinear.plinear import PLinear
-from plinear.visualization import save_weight_image, create_animation_from_images, create_confusion_matrix_animation, plot_metrics
+from plinear.plinear import PLinear_Complex as PL
+from plinear.visualization import save_weight_image_complex, create_animation_from_images, create_confusion_matrix_animation, plot_metrics
 import os
 
 class SimpleNN(nn.Module):
     def __init__(self):
         super(SimpleNN, self).__init__()
-        self.fc1 = PLinear(28*28, 512)
-        self.fc2 = PLinear(512, 512)
-        self.fc3 = PLinear(512, 10)
+        self.complex = torch.zeros(1, 28*28)
+        self.fc1 = PL(28*28, 256)
+        self.fc2 = PL(256, 256)
+        self.fc3 = PL(256, 10)
 
     def forward(self, x):
-        x = torch.flatten(x, 1)
-        x = self.fc1(x)
-        x = self.fc2(x)
-        x = self.fc3(x)
-        return x
+        real = torch.flatten(x, 1)
+        complex = self.complex
+        real, complex = self.fc1(real, complex)
+        real, complex = self.fc2(real, complex)
+        real, complex = self.fc3(real, complex)
+        return real
 
 @pytest.fixture(scope="module")
 def mnist_data():
@@ -34,7 +36,7 @@ def mnist_data():
     return train_loader, test_loader
 
 def test_mnist(mnist_data):
-    result_path = 'tests/results/mnist_plinear/'
+    result_path = 'tests/results/mnist_plinear_complex/'
     os.makedirs(result_path, exist_ok=True)
     train_loader, test_loader = mnist_data
 
@@ -42,7 +44,7 @@ def test_mnist(mnist_data):
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD(model.parameters(), lr=1)  # Basic SGD optimizer
 
-    num_epochs = 3  # 에포크 수를 설정합니다.
+    num_epochs = 10  # epochs
     accuracy_list = []
     recall_list = []
     precision_list = []
@@ -86,15 +88,16 @@ def test_mnist(mnist_data):
         print(f"Recall: {recall}")
         print(f"Precision: {precision}")
 
-        # 각 레이어에 대해 가중치 이미지 저장
+        # saving images
         for i, layer in enumerate(model.children()):
-            if isinstance(layer, PLinear):
-                save_weight_image(layer, result_path, i, epoch)
+            if isinstance(layer, PL):
+                save_weight_image_complex(layer, result_path, i, epoch)
 
-    # 각 레이어에 대해 애니메이션 생성
+    # create animation
     for i, layer in enumerate(model.children()):
-        if isinstance(layer, PLinear):
-            create_animation_from_images(result_path, i, num_epochs)
+        if isinstance(layer, PL):
+            create_animation_from_images(result_path, i, num_epochs, postfix='_real')
+            create_animation_from_images(result_path, i, num_epochs, postfix='_complex')
 
     # Plot accuracy, recall, precision over epochs and save to file
     epochs = range(1, num_epochs + 1)

@@ -50,17 +50,12 @@ class SimpleNN(nn.Module):
         x = self.fc1(x)
         x = self.fc2(x)
         return x
-
-# Example usage
-model = SimpleNN()
-print(model)
-
 ```
 
 #### Test code for Mnist example
 
 ```
-pytest -k mnist
+pytest -k mnist -s
 ```
 
 Results can be found in tests/result_mnist.
@@ -83,13 +78,40 @@ I believe this can be used to vectorize images in proper size of vector which ca
 
 I guess vectorizing concepts and dynamically allocating them with layers would be the final goal of this project.
 
-## complex layers (Only Idea)
+## complex layers
 
-We can add two more layers parrallelly to express complex domain.
+parrellized 4 nn.Linears.
 
-There will be real output and complex output which can be used in many form.
+2 for real and 2 for complex.
 
-If the layer is complex, default complex part will be zero and it can be passed from previous layers ofcourse.
+real_result is calculated by real_input x real_neg - real_input x real_neg + complex_input x complex_neg - complex_input x complex_pos
+
+complex_result is calculated by real_input x complex_pos - real_input x complex_neg + complex_input x real_pos - complex_input x real_neg
+
+I used torch.zeros if there is no complex input to feed.
+
+pretty lovely result comes out, I suggest you to try this.
+
+#### Suggested usage
+
+```
+import torch
+import torch.nn as nn
+from plinear import PLinear_Complex as PL
+
+class SimpleNN(nn.Module):
+    def __init__(self):
+        super(SimpleNN, self).__init__()
+        self.complex = torch.zeros(28*28, 1)
+        self.fc1 = PL(28*28, 128)
+        self.fc2 = PL(128, 10)
+
+    def forward(self, x):
+        real = torch.flatten(x, 1)
+        real, complex = self.fc1(real, complex)
+        real, complex = self.fc2(real, complex)
+        return real
+```
 
 # Developer Note
 
@@ -119,3 +141,9 @@ Layer now does posNet - negNet instead of posNet + negNet since negNet is not ne
 Weight is now processed with tanh and shows much stable learning curve.
 
 Removed test result from the git.
+
+#### 0.1.3.0
+
+Complex layer created and tested on MNIST
+
+mnist run case fixed to show result through cmd
