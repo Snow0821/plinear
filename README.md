@@ -66,7 +66,7 @@ class SimpleNN(nn.Module):
         return x
 ```
 
-#### Test code for Mnist example
+#### Test code for Mnist example (Should clone whole git)
 
 ```
 pytest -k mnist -s
@@ -80,7 +80,7 @@ Also confusion matrix and full visualization of weights per epochs will be offer
 
 ## Complex layers
 
-parrellized 4 nn.Linears.
+parrellized 4 binarized nn.Linears (using same algorithms with PLinear).
 
 2 for real and 2 for complex.
 
@@ -104,7 +104,7 @@ I used torch.zeros if there is no complex input to feed.
 
 pretty lovely result comes out, I suggest you to try this.
 
-#### Suggested usage
+#### Example usage
 
 ```
 import torch
@@ -125,7 +125,7 @@ class SimpleNN(nn.Module):
         return real
 ```
 
-#### Test code for Mnist example
+#### Test code for Mnist example (Should clone whole git)
 
 ```
 pytest -k mnist_c -s

@@ -7,7 +7,7 @@ from sklearn.metrics import confusion_matrix, accuracy_score, recall_score, prec
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 from plinear.plinear import PLinear
-from plinear.visualization import save_weight_image, create_animation_from_images, create_confusion_matrix_animation, plot_metrics
+from plinear.vis import save_weight_images, create_animation_from_images, plot_metrics, save_confusion_matrix
 import os
 
 class SimpleNN(nn.Module):
@@ -34,22 +34,7 @@ def mnist_data():
     return train_loader, test_loader
 
 def test_mnist(mnist_data):
-    result_path = 'tests/results/mnist_plinear/'
-    os.makedirs(result_path, exist_ok=True)
-    train_loader, test_loader = mnist_data
-
-    model = SimpleNN()
-    criterion = nn.CrossEntropyLoss()
-    optimizer = optim.SGD(model.parameters(), lr=1)  # Basic SGD optimizer
-
-    num_epochs = 3  # 에포크 수를 설정합니다.
-    accuracy_list = []
-    recall_list = []
-    precision_list = []
-    confusion_matrices = []
-
-    # Training and evaluation loop
-    for epoch in range(num_epochs):
+    def train(model, train_loader):
         model.train()
         for batch_idx, (data, target) in enumerate(train_loader):
             optimizer.zero_grad()
@@ -57,8 +42,9 @@ def test_mnist(mnist_data):
             loss = criterion(output, target)
             loss.backward()
             optimizer.step()
+        return
 
-        # Evaluation
+    def evaluation(model, test_loader, path, epoch):
         model.eval()
         all_preds = []
         all_labels = []
@@ -78,30 +64,47 @@ def test_mnist(mnist_data):
         recall_list.append(recall)
         precision_list.append(precision)
 
-        cm = confusion_matrix(all_labels, all_preds)
-        confusion_matrices.append(cm)
-
         print(f"Epoch {epoch+1}/{num_epochs}")
         print(f"Accuracy: {accuracy}")
         print(f"Recall: {recall}")
         print(f"Precision: {precision}")
 
-        # 각 레이어에 대해 가중치 이미지 저장
+        save_confusion_matrix(confusion_matrix(all_labels, all_preds), path, epoch)
+        save_weight_images(model, path, epoch)
+        
+        return
+    
+    def save_animations(model, num_epochs, accuracy_list, recall_list, precision_list, path):
         for i, layer in enumerate(model.children()):
-            if isinstance(layer, PLinear):
-                save_weight_image(layer, result_path, i, epoch)
+            if isinstance(layer, model):
+                create_animation_from_images(path, f'layer_{i + 1}', num_epochs, 'Real')
+        create_animation_from_images(path,'cm', num_epochs)
 
-    # 각 레이어에 대해 애니메이션 생성
-    for i, layer in enumerate(model.children()):
-        if isinstance(layer, PLinear):
-            create_animation_from_images(result_path, i, num_epochs)
+        # Plot accuracy, recall, precision over epochs and save to file
+        epochs = range(1, num_epochs + 1)
+        plot_metrics(epochs, accuracy_list, recall_list, precision_list, path)
+        return
 
-    # Plot accuracy, recall, precision over epochs and save to file
-    epochs = range(1, num_epochs + 1)
-    plot_metrics(epochs, accuracy_list, recall_list, precision_list, result_path)
 
-    # Animate confusion matrices and save to file
-    create_confusion_matrix_animation(confusion_matrices, result_path, num_epochs)
+    path = 'tests/results/mnist_plinear/'
+    os.makedirs(path, exist_ok=True)
+    train_loader, test_loader = mnist_data
+
+    model = SimpleNN()
+    criterion = nn.CrossEntropyLoss()
+    optimizer = optim.SGD(model.parameters(), lr=1)  # Basic SGD optimizer
+
+    num_epochs = 3  # EPOCHS
+    accuracy_list = []
+    recall_list = []
+    precision_list = []
+
+    # Training and evaluation loop
+    for epoch in range(num_epochs):
+        train(model, train_loader)
+        evaluation(model, test_loader, path, epoch)
+    
+    save_animations(model, num_epochs, accuracy_list, recall_list, precision_list, path)
 
     # Assert final accuracy
     assert accuracy_list[-1] > 0.9, "Final accuracy should be higher than 90%"
