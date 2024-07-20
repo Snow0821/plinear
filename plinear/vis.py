@@ -14,31 +14,25 @@ def save_image(data, result_path, filename, cmap='bwr', vmin=-1, vmax=1, aspect=
     plt.close()
 
 def save_weight_images(model, result_path, epoch):
-    layers = []
     for i, layer in enumerate(model.children()):
-        weights = {}
         if hasattr(layer, 'linear_pos') and hasattr(layer, 'linear_neg'):
             pos_weights = PF.posNet(layer.linear_pos.weight).cpu().numpy()
             neg_weights = PF.posNet(layer.linear_neg.weight).cpu().numpy()
             combined_weights = (pos_weights - neg_weights).reshape(layer.linear_pos.weight.shape[0], -1)
-            weights['Real'] = combined_weights
+            save_image(combined_weights, f"{result_path}/layer_{i+1}", f"{epoch+1}_Real.png", title=f'Real Weights - Layer {i+1} - Epoch {epoch+1}')
 
         if hasattr(layer, 'real_pos') and hasattr(layer, 'real_neg'):
             rp = PF.posNet(layer.real_pos.weight).cpu().numpy()
             rn = PF.posNet(layer.real_neg.weight).cpu().numpy()
             real = (rp - rn).reshape(layer.real_pos.weight.shape[0], -1)
-            weights['Real'] = real
+            save_image(real, f"{result_path}/layer_{i+1}", f"{epoch+1}_Real.png", title=f'Real Weights - Layer {i+1} - Epoch {epoch+1}')
 
         if hasattr(layer, 'complex_pos') and hasattr(layer, 'complex_neg'):
             cp = PF.posNet(layer.complex_pos.weight).cpu().numpy()
             cn = PF.posNet(layer.complex_neg.weight).cpu().numpy()
             complex = (cp - cn).reshape(layer.real_pos.weight.shape[0], -1)
-            weights['Complex'] = complex
-        layers.append(weights)
-
-    for i, l in enumerate(layers):
-        for name in l:
-            save_image(weights[name], f"{result_path}/layer_{i+1}", f"{epoch+1}_{name}.png", title=f'{name} Weights - Layer {i+1} - Epoch {epoch+1}')
+            save_image(complex, f"{result_path}/layer_{i+1}", f"{epoch+1}_Complex.png", title=f'Complex Weights - Layer {i+1} - Epoch {epoch+1}')
+    return
 
 def save_confusion_matrix(cm, result_path, epoch):
     save_image(cm, result_path+'/cm', f"{epoch+1}.png", cmap='Blues', vmin=0, vmax=np.max(cm), title=f'Confusion Matrix - Epoch {epoch+1}')
