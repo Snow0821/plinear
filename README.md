@@ -207,3 +207,7 @@ Need compensation since unlike traditional linear, quantized models does not sho
 Minor instalation version check.
 
 pytorch 2.2.2 for darwin (intel Macos)
+
+#### 0.1.3.3
+
+plinear device setting added

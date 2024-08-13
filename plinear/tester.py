@@ -59,28 +59,27 @@ class SAM(optim.Optimizer):
         
         return norm
 
-
-
 def ExampleTester(model, domains, num_epochs, path, train_loader, test_loader):
     def train(model, train_loader, criterion, optimizer):
         model.train()
         for inputs, labels in train_loader:
             inputs, labels = inputs.to(device), labels.to(device)
 
-            optimizer.zero_grad()  # 그래디언트 초기화
-            outputs = model(inputs)  # 모델 출력 계산
-            loss = criterion(outputs, labels)  # 손실 계산
-            loss.backward()  # 역전파 수행
-            optimizer.step()  # 파라미터 업데이트
+            optimizer.zero_grad()  
+            outputs = model(inputs)
+            loss = criterion(outputs, labels)
+            loss.backward()
+            optimizer.step()
         
+            # if using SAM
             # def closure():
-            #     optimizer.zero_grad()  # 그래디언트 초기화
-            #     outputs = model(inputs)  # 모델 출력 계산
-            #     loss = criterion(outputs, labels)  # 손실 계산
-            #     loss.backward()  # 역전파 수행
+            #     optimizer.zero_grad()
+            #     outputs = model(inputs)
+            #     loss = criterion(outputs, labels)
+            #     loss.backward()
             #     return loss
 
-            # optimizer.step(closure)  # SAM의 두 단계 최적화 수행
+            # optimizer.step(closure)  # Second Optimization of SAM
 
     def evaluation(model, test_loader, path, epoch):
         model.eval()
