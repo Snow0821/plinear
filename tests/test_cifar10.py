@@ -1,21 +1,64 @@
 import pytest
 import torch
+import torch.nn as nn
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
-from plinear import PLinear
+from plinear.plinear import PLinear, PLinear_Complex
 
-@pytest.fixture(scope="module")
+from plinear.tester import ExampleTester
+
+class RealModel(nn.Module):
+    def __init__(self):
+        super(RealModel, self).__init__()
+        self.fc1 = PLinear(32*32*3, 2048)
+        self.fc2 = PLinear(2048, 2048)
+        self.fc3 = PLinear(2048, 10)
+
+    def forward(self, x):
+        x = torch.flatten(x, 1)
+        x = self.fc1(x)
+        x = self.fc2(x)
+        x = self.fc3(x)
+
+        return x
+
+class ComplexModel(nn.Module):
+    def __init__(self):
+        super(ComplexModel, self).__init__()
+        self.complex = torch.zeros(32*32*3)
+        self.fc1 = PLinear_Complex(32*32*3, 1024)
+        self.fc2 = PLinear_Complex(1024, 1024)
+        self.fc3 = PLinear_Complex(1024, 10)
+
+    def forward(self, x):
+        real = torch.flatten(x, 1)
+        complex = self.complex
+        real, complex = self.fc1(real, complex)
+        real, complex = self.fc2(real, complex)
+        real, complex = self.fc3(real, complex)
+        return real
+
+@pytest.fixture
 def cifar10_data():
-    transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))])
+    transform = transforms.Compose([transforms.ToTensor()])
     train_dataset = datasets.CIFAR10(root='./data', train=True, download=True, transform=transform)
+    test_dataset = datasets.CIFAR10(root='./data', train=False, download=True, transform=transform)
     train_loader = DataLoader(dataset=train_dataset, batch_size=64, shuffle=True)
-    return train_loader
+    test_loader = DataLoader(dataset=test_dataset, batch_size=1000, shuffle=False)
+    return train_loader, test_loader
 
-def test_plinear_cifar10(cifar10_data):
-    model = PLinear(32*32*3, 10)
+def test_real(cifar10_data):
+    model = RealModel()
+    domains = ['Real']
+    num_epochs = 10
+    path = 'tests/results/cifar10_real/'
+    train_loader, test_loader = cifar10_data
+    ExampleTester(model, domains, num_epochs, path, train_loader, test_loader)
 
-    for images, labels in cifar10_data:
-        images = images.view(images.size(0), -1)
-        output = model(images)
-        assert output.shape[-1] == 2, "Each output value should be a tuple of length 2"
-        break
+def test_complex(cifar10_data):
+    model = ComplexModel()
+    domains = ['Real', 'Complex']
+    num_epochs = 10
+    path = 'tests/results/cifar10_complex/'
+    train_loader, test_loader = cifar10_data
+    ExampleTester(model, domains, num_epochs, path, train_loader, test_loader)

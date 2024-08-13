@@ -5,7 +5,7 @@ from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 from plinear.plinear import PLinear
 
-from plinear.tester import tester
+from plinear.tester import ExampleTester
 
 class SimpleNN(nn.Module):
     def __init__(self):
@@ -36,4 +36,4 @@ def test_simple_nn(mnist_data):
     num_epochs = 10
     path = 'tests/results/mnist_plinear/'
     train_loader, test_loader = mnist_data
-    tester(model, domains, num_epochs, path, train_loader, test_loader)
+    ExampleTester(model, domains, num_epochs, path, train_loader, test_loader)

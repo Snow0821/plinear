@@ -133,7 +133,7 @@ pytest -k mnist_c -s
 
 ## visualization (Not finised for documentation)
 
-## Brute Force optimization of 3 x 3 CNN (Only Idea)
+## Exhaustive search of 3 x 3 CNN (Only Idea)
 
 Since I parrallelized layers, each 3 x 3 CNN layer can be brute forced in 2^9 \* 2 weights for ternary, which is very cheap against previous models.
 
@@ -162,6 +162,10 @@ version 0.1.3.0 - PLinear_Complex
 
 fixed some documentaion
 
+### 14, Auguest, 2024
+
+version 0.1.3.1 - Minor Tester change
+
 # changelog
 
 #### 0.1.2.2.
@@ -185,3 +189,15 @@ Removed test result from the git.
 Complex layer created and tested on MNIST
 
 mnist run case fixed to show result through cmd
+
+#### 0.1.3.1
+
+Teseted SAM optimizer and somehow it did not work well.
+
+##### Found out that square models way better than non-square models.
+
+###### Hypothesis
+
+While backpropagation if the tensor got smaller, the change should spread thinner.
+
+Need compensation since unlike traditional linear, quantized models does not show the change until it passes threshold.
