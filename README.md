@@ -201,3 +201,9 @@ Teseted SAM optimizer and somehow it did not work well.
 While backpropagation if the tensor got smaller, the change should spread thinner.
 
 Need compensation since unlike traditional linear, quantized models does not show the change until it passes threshold.
+
+#### 0.1.3.2
+
+Minor instalation version check.
+
+pytorch 2.2.2 for darwin (intel Macos)
