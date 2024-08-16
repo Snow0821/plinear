@@ -42,13 +42,13 @@ class PLinear_Complex(nn.Module):
     def forward(self, x_real: torch.Tensor, x_complex: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
         real_pos = torch.tanh(self.real_pos.weight).to(x_real.device)
         real_neg = torch.tanh(self.real_neg.weight).to(x_real.device)
-        complex_pos = torch.tanh(self.complex_pos.weight).to(x_complex.device)
-        complex_neg = torch.tanh(self.complex_neg.weight).to(x_complex.device)
+        complex_pos = torch.tanh(self.complex_pos.weight).to(x_real.device)
+        complex_neg = torch.tanh(self.complex_neg.weight).to(x_real.device)
 
         real_pos_q = real_pos + (PF.posNet(real_pos) - real_pos).detach().to(x_real.device)
         real_neg_q = real_neg + (PF.posNet(real_neg) - real_neg).detach().to(x_real.device)
-        complex_pos_q = complex_pos + (PF.posNet(complex_pos) - complex_pos).detach().to(x_complex.device)
-        complex_neg_q = complex_neg + (PF.posNet(complex_neg) - complex_neg).detach().to(x_complex.device)
+        complex_pos_q = complex_pos + (PF.posNet(complex_pos) - complex_pos).detach().to(x_real.device)
+        complex_neg_q = complex_neg + (PF.posNet(complex_neg) - complex_neg).detach().to(x_real.device)
 
         y_real = F.linear(x_real, real_pos_q) - F.linear(x_real, real_neg_q) + F.linear(x_complex, complex_pos_q) - F.linear(x_complex, complex_neg_q)
         y_complex = F.linear(x_real, complex_pos_q) - F.linear(x_real, complex_neg_q) + F.linear(x_complex, real_pos_q) - F.linear(x_complex, real_neg_q)

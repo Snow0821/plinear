@@ -10,9 +10,9 @@ from plinear.tester import ExampleTester
 class RealModel(nn.Module):
     def __init__(self):
         super(RealModel, self).__init__()
-        self.fc1 = PLinear(32*32*3, 2048)
-        self.fc2 = PLinear(2048, 2048)
-        self.fc3 = PLinear(2048, 10)
+        self.fc1 = PLinear(32*32*3, 512)
+        self.fc2 = PLinear(512, 512)
+        self.fc3 = PLinear(512, 10)
 
     def forward(self, x):
         x = torch.flatten(x, 1)
@@ -26,9 +26,9 @@ class ComplexModel(nn.Module):
     def __init__(self):
         super(ComplexModel, self).__init__()
         self.complex = torch.zeros(32*32*3)
-        self.fc1 = PLinear_Complex(32*32*3, 1024)
-        self.fc2 = PLinear_Complex(1024, 1024)
-        self.fc3 = PLinear_Complex(1024, 10)
+        self.fc1 = PLinear_Complex(32*32*3, 256)
+        self.fc2 = PLinear_Complex(256, 256)
+        self.fc3 = PLinear_Complex(256, 10)
 
     def forward(self, x):
         real = torch.flatten(x, 1)

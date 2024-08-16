@@ -15,12 +15,6 @@ def save_image(data, result_path, filename, cmap='bwr', vmin=-1, vmax=1, aspect=
 
 def save_weight_images(model, result_path, epoch):
     for i, layer in enumerate(model.children()):
-        if hasattr(layer, 'linear_pos') and hasattr(layer, 'linear_neg'):
-            pos_weights = PF.posNet(layer.linear_pos.weight).cpu().numpy()
-            neg_weights = PF.posNet(layer.linear_neg.weight).cpu().numpy()
-            combined_weights = (pos_weights - neg_weights).reshape(layer.linear_pos.weight.shape[0], -1)
-            save_image(combined_weights, f"{result_path}/layer_{i+1}", f"{epoch+1}_Real.png", title=f'Real Weights - Layer {i+1} - Epoch {epoch+1}')
-
         if hasattr(layer, 'real_pos') and hasattr(layer, 'real_neg'):
             rp = PF.posNet(layer.real_pos.weight).cpu().numpy()
             rn = PF.posNet(layer.real_neg.weight).cpu().numpy()
@@ -41,7 +35,7 @@ def create_animation_from_images(path, folder, num_epochs, postfix = ''):
     images = []
     for epoch in range(num_epochs):
         filename = f"{path}/{folder}/{epoch+1}{'_' if postfix else ''}{postfix}.png"
-        images.append(imageio.imread(filename))
+        images.append(imageio.v2.imread(filename))
     imageio.mimsave(f"{path}/{folder}{'_' if postfix else ''}{postfix}.gif", images, duration=100)
 
 import csv

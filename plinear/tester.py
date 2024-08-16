@@ -61,6 +61,9 @@ class SAM(optim.Optimizer):
 
 def ExampleTester(model, domains, num_epochs, path, train_loader, test_loader):
     def train(model, train_loader, criterion, optimizer):
+        total_loss = 0
+        total_samples = 0
+
         model.train()
         for inputs, labels in train_loader:
             inputs, labels = inputs.to(device), labels.to(device)
@@ -68,9 +71,12 @@ def ExampleTester(model, domains, num_epochs, path, train_loader, test_loader):
             optimizer.zero_grad()  
             outputs = model(inputs)
             loss = criterion(outputs, labels)
+            total_loss += loss.item()
+            total_samples += inputs.size(0)
             loss.backward()
             optimizer.step()
-        
+
+        print(f"Loss : {total_loss / total_samples} ")
             # if using SAM
             # def closure():
             #     optimizer.zero_grad()
@@ -95,16 +101,16 @@ def ExampleTester(model, domains, num_epochs, path, train_loader, test_loader):
 
         accuracy = accuracy_score(all_labels, all_preds)
         recall = recall_score(all_labels, all_preds, average='macro')
-        precision = precision_score(all_labels, all_preds, average='macro')
+        precision = precision_score(all_labels, all_preds, average='macro', zero_division=0)
 
         accuracy_list.append(accuracy)
         recall_list.append(recall)
         precision_list.append(precision)
 
-        print(f"Epoch {epoch+1}/{num_epochs}")
         print(f"Accuracy: {accuracy}")
         print(f"Recall: {recall}")
         print(f"Precision: {precision}")
+        print()
 
         save_confusion_matrix(confusion_matrix(all_labels, all_preds), path, epoch)
         save_weight_images(model, path, epoch)
@@ -130,14 +136,16 @@ def ExampleTester(model, domains, num_epochs, path, train_loader, test_loader):
     criterion = nn.CrossEntropyLoss()
     # base_optimizer = optim.Adam
     # optimizer = SAM(model.parameters(), base_optimizer, lr=1, betas=(0.9, 0.999), weight_decay=1e-4)
-    # optimizer = optim.Adam(model.parameters(), lr=1, betas=(0.9, 0.999), weight_decay=0.1)
-    optimizer = optim.SGD(model.parameters(), lr = 1)
+    optimizer = optim.Adam(model.parameters(), lr=1)
+    # optimizer = optim.SGD(model.parameters(), lr = 1)
     accuracy_list = []
     recall_list = []
     precision_list = []
 
+    print("\nTraining Begin")
     # Training and evaluation loop
     for epoch in range(num_epochs):
+        print(f"Epoch {epoch + 1}/{num_epochs}")
         train(model, train_loader, criterion, optimizer)
         evaluation(model, test_loader, path, epoch)
     
