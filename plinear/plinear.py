@@ -14,7 +14,6 @@ class PLinear(nn.Module):
         self.real_neg = nn.Linear(in_features, out_features)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        # Tanh makes network learn smoothly somehow. especially with lr of 1 and no momentum.
         w_pos = torch.tanh(self.real_pos.weight).to(x.device)
         w_neg = torch.tanh(self.real_neg.weight).to(x.device)
 

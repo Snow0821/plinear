@@ -65,7 +65,8 @@ class Model(nn.Module):
 from sklearn.metrics import accuracy_score
 import torch.optim as optim
 
-def case(linear, width, depth, epochs, features, target, device, train_loader, test_loader):
+def case(linear, width, depth, epochs, features, target, device, data):
+    train_loader, test_loader = data()
     model = Model(linear, width, depth, features, target)
     opt = optim.Adam(model.parameters())
     crit = nn.CrossEntropyLoss()
@@ -78,14 +79,18 @@ def case(linear, width, depth, epochs, features, target, device, train_loader, t
         print(f"Epoch {epoch + 1} / {epochs} Acc = {accuracy_score(labels, preds)}")
 
 from plinear.plinear import PLinear, PLinear_Complex
-from . import bitLinear, naiveSTE
+from code_for_paper.comparing_accuracy_of_sign_quantized_layers import bitLinear, naiveSTE
 
 def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     epochs = 3
-    train_loader, test_loader = mnist_data()
-    case(nn.Linear, 32, 3, epochs, 28 * 28, 10, device, train_loader, test_loader)
-    case(PLinear, 32, 3, epochs, 28 * 28, 10, device, train_loader, test_loader)
-
+    linears = [nn.Linear, PLinear, bitLinear.BitLinear, naiveSTE.TernaryLinear]
+    feature_size = 28 * 28
+    target_size = 10
+    width = 32
+    depth = 3
+    data = mnist_data
+    for linear in linears:
+        case(linear, width, depth, epochs, feature_size, target_size, device, data)
 if __name__ == "__main__":
     main()

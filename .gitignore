@@ -164,3 +164,4 @@ cython_debug/
 data/
 tests/results/
 .DS_Store
+code_for_paper/data/
