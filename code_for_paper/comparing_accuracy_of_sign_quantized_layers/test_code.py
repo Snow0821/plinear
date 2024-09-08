@@ -40,42 +40,52 @@ def test(model, test_loader):
         for x, y in test_loader:
             outputs = model(x)
             pred = outputs.argmax(dim = 1)
-            preds.extend(pred.cpu().tolist)
-            labels.extend(y.cpu().tolist)
+            preds.extend(pred.cpu().tolist())
+            labels.extend(y.cpu().tolist())
 
     return preds, labels
 
 from torch import nn
 
 class Model(nn.Module):
-    def __init__(self, linear, width, depth):
+    def __init__(self, linear, width, depth, i, o):
         super(Model, self).__init__()
-        self.layers = [linear(width) for _ in range(depth)]
+        self.reader = linear(i, width)
+        self.layers = [linear(width, width) for _ in range(depth)]
+        self.writer = linear(width, o)
     
     def forward(self, x):
+        x = torch.flatten(x, 1)
+        x = self.reader(x)
         for layer in self.layers:
             x = layer(x)
+        x = self.writer(x)
         return x
         
 from sklearn.metrics import accuracy_score
 import torch.optim as optim
 
-def main():
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = Model(nn.Linear, 32, 3)
-    epochs = 3
-    crit = nn.CrossEntropyLoss()
+def case(linear, width, depth, epochs, features, target, device, train_loader, test_loader):
+    model = Model(linear, width, depth, features, target)
     opt = optim.Adam(model.parameters())
-
-
+    crit = nn.CrossEntropyLoss()
     model = model.to(device)
-    train_loader, test_loader = mnist_data
+    
 
     for epoch in range(epochs):
         train(model, train_loader, crit, opt, device)
         preds, labels = test(model, test_loader)
         print(f"Epoch {epoch + 1} / {epochs} Acc = {accuracy_score(labels, preds)}")
 
+from plinear.plinear import PLinear, PLinear_Complex
+from . import bitLinear, naiveSTE
+
+def main():
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    epochs = 3
+    train_loader, test_loader = mnist_data()
+    case(nn.Linear, 32, 3, epochs, 28 * 28, 10, device, train_loader, test_loader)
+    case(PLinear, 32, 3, epochs, 28 * 28, 10, device, train_loader, test_loader)
 
 if __name__ == "__main__":
     main()
