@@ -5,8 +5,8 @@ from torch.utils.data import DataLoader
 
 def mnist_data():
     transform = transforms.Compose([transforms.ToTensor()])
-    train_dataset = datasets.MNIST(root='./data', train=True, download=True, transform=transform)
-    test_dataset = datasets.MNIST(root='./data', train=False, download=True, transform=transform)
+    train_dataset = datasets.MNIST(root='../data', train=True, download=True, transform=transform)
+    test_dataset = datasets.MNIST(root='../data', train=False, download=True, transform=transform)
     train_loader = DataLoader(dataset=train_dataset, batch_size=64, shuffle=True)
     test_loader = DataLoader(dataset=test_dataset, batch_size=1000, shuffle=False)
     return train_loader, test_loader
@@ -46,18 +46,22 @@ def test(model, test_loader):
     return preds, labels
 
 from torch import nn
+from code_for_paper.comparing_accuracy_of_ternary_neural_networks.bitLinear import RMSNorm
 
 class Model(nn.Module):
-    def __init__(self, linear, width, depth, i, o):
+    def __init__(self, linear, width, depth, i, o, RMSNorm = False):
         super(Model, self).__init__()
         self.reader = linear(i, width)
         self.layers = [linear(width, width) for _ in range(depth)]
         self.writer = linear(width, o)
+        self.RMSNorm = RMSNorm
     
     def forward(self, x):
         x = torch.flatten(x, 1)
         x = self.reader(x)
         for layer in self.layers:
+            if self.RMSNorm:
+                x = RMSNorm(x)
             x = layer(x)
         x = self.writer(x)
         return x
@@ -65,9 +69,9 @@ class Model(nn.Module):
 from sklearn.metrics import accuracy_score
 import torch.optim as optim
 
-def case(linear, width, depth, epochs, features, target, device, data):
+def case(linear, width, depth, epochs, features, target, device, data, rms):
     train_loader, test_loader = data()
-    model = Model(linear, width, depth, features, target)
+    model = Model(linear, width, depth, features, target, rms)
     opt = optim.Adam(model.parameters())
     crit = nn.CrossEntropyLoss()
     model = model.to(device)
@@ -78,19 +82,37 @@ def case(linear, width, depth, epochs, features, target, device, data):
         preds, labels = test(model, test_loader)
         print(f"Epoch {epoch + 1} / {epochs} Acc = {accuracy_score(labels, preds)}")
 
-from plinear.plinear import PLinear, PLinear_Complex
-from code_for_paper.comparing_accuracy_of_sign_quantized_layers import bitLinear, naiveSTE
+from code_for_paper.comparing_accuracy_of_ternary_neural_networks import bitLinear, ternaries
 
 def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     epochs = 3
-    linears = [nn.Linear, PLinear, bitLinear.BitLinear, naiveSTE.TernaryLinear]
+    linears = [
+        nn.Linear, 
+        bitLinear.BitLinear,
+        ternaries.naive_tern_det, 
+        ternaries.naive_tern_stoc,
+        ternaries.pow2_tern,
+        ternaries.exp_tern_det,
+        ternaries.exp_tern_stoc
+        ]
+    names = [
+        "linear",
+        "bitlinear",
+        "naive_det",
+        "naive_stoc",
+        "pow2",
+        "exp_det",
+        "exp_stoc"
+    ]
     feature_size = 28 * 28
     target_size = 10
     width = 32
     depth = 3
     data = mnist_data
-    for linear in linears:
-        case(linear, width, depth, epochs, feature_size, target_size, device, data)
+    for i in range(2, len(linears)):
+        linear = linears[i]
+        print(names[i])
+        case(linear, width, depth, epochs, feature_size, target_size, device, data, False)
 if __name__ == "__main__":
     main()
