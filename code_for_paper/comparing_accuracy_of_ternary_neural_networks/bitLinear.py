@@ -29,9 +29,26 @@ def weight_quant(w):
     """
     scale = 1.0 / w.abs().mean().clamp_(min=1e-5)
     u = (w * scale).round().clamp_(-1, 1) / scale
+    # u = (w * scale).round().clamp_(-1, 1)
     return u
-    
-class BitLinear(nn.Linear):
+
+def weight_quant2(w):
+    """ Per−tensor quantization to 1.58 bits. No grouping is needed for quantization.
+    Args:
+    w: a weight tensor with shape [d, k]
+    Returns:
+    u: a quantized weight with shape [d, k]
+    """
+    scale = 1.0 / w.abs().mean().clamp_(min=1e-5)
+    # u = (w * scale).round().clamp_(-1, 1) / scale
+    u = (w * scale).round().clamp_(-1, 1)
+    return u
+
+from code_for_paper.comparing_accuracy_of_ternary_neural_networks.ternaries import ternary
+
+class BitLinear(ternary):
+    def tern(self, w):
+        return weight_quant2(w)
     """
     This is only for training, and kernel optimization is needed for efficiency.
     """
@@ -47,6 +64,6 @@ class BitLinear(nn.Linear):
         x_norm = x
         # A trick for implementing Straight−Through−Estimator (STE) using detach()
         x_quant = x_norm + (activation_quant(x_norm) - x_norm).detach()
-        w_quant = w + (weight_quant(w) - w).detach()
+        w_quant = w + (weight_quant2(w) - w).detach() #tern added to track zeros
         y = F.linear(x_quant, w_quant)
         return y
