@@ -162,6 +162,5 @@ cython_debug/
 #.idea/
 
 data/
-tests/results/
+performance_test/
 .DS_Store
-code_for_paper/data/
