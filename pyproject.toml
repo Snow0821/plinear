@@ -5,8 +5,10 @@ description = "parallel neural network layer for binarization of ternarization -
 authors = ["Choi Soon Ho <sosaror@gmail.com>"]
 license = "MIT"
 readme = "README.md"
+repository = "https://github.com/Snow0821/plinear"
+
 packages = [
-    { include = "plinear", from = "." },
+    { include = "plinear" },
 ]
 
 [tool.poetry.dependencies]
