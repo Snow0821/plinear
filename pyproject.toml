@@ -9,7 +9,8 @@ repository = "https://github.com/Snow0821/plinear"
 
 packages = [
     { include = "btnn" },
-    { include = "ctnn" }
+    { include = "ctnn" },
+    { include = "models" }
 ]
 
 [tool.poetry.dependencies]

@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from core.binarizer import posNet
+from core.posNet import posNet
 
 class PLinear_Complex(nn.Module):
     def __init__(self, ins, outs):
