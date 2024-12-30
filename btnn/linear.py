@@ -4,9 +4,9 @@ import torch.nn.functional as F
 
 from core.posNet import posNet
 
-class PLinear(nn.Module):
+class Linear(nn.Module):
     def __init__(self, x, y):
-        super(PLinear, self).__init__()
+        super(Linear, self).__init__()
         self.real_pos = nn.Linear(x, y)
         self.real_neg = nn.Linear(x, y)
 

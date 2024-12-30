@@ -4,7 +4,7 @@ from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 
 from models import vit_example as vit
-from btnn import linear
+import btnn
 
 # MNIST 데이터셋 로드
 transform = transforms.Compose([
@@ -19,9 +19,9 @@ test_loader = DataLoader(test_dataset, batch_size=64, shuffle=False)
 
 # 모델 초기화
 model = vit.VisionTransformer(
-    img_size=32, patch_size=4, in_channels=1, embed_dim=256, 
-    num_heads=8, depth=6, mlp_dim=512, num_classes=10,
-    model = linear.PLinear
+    img_size=32, patch_size=4, in_channels=1, embed_dim=512, 
+    num_heads=32, depth=6, mlp_dim=1024, num_classes=10,
+    model = btnn.Linear
 )
 
 # 손실 함수 및 옵티마이저

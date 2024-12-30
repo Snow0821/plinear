@@ -3,6 +3,9 @@
 ### 0.2.0
 #### 0.2.0.0 
 ##### 30th December, 2024
+- Removed softmax in qkv calculation
+    stablized learning curve
+
 - Splited 'plinear' into core, btnn, ctnn
     core is for core algorithms which now only contains baisc binarization
     btnn stands for binarized ternary neural network which was basic plinear

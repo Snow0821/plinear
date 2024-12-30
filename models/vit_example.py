@@ -38,7 +38,7 @@ class MultiHeadAttention(nn.Module):
         q, k, v = qkv.permute(2, 0, 3, 1, 4)  # [3, B, num_heads, N, head_dim]
 
         attn = (q @ k.transpose(-2, -1)) / (self.head_dim ** 0.5)  # Scaled dot-product attention
-        attn = attn.softmax(dim=-1)
+        # attn = attn.softmax(dim=-1)
         out = (attn @ v).transpose(1, 2).reshape(B, N, C)
         return self.proj(out)
 
