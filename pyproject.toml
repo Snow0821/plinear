@@ -8,7 +8,8 @@ readme = "README.md"
 repository = "https://github.com/Snow0821/plinear"
 
 packages = [
-    { include = "plinear" },
+    { include = "btnn" },
+    { include = "ctnn" }
 ]
 
 [tool.poetry.dependencies]

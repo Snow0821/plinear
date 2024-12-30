@@ -3,6 +3,11 @@
 ### 0.2.0
 #### 0.2.0.0 
 ##### 30th December, 2024
+- Splited 'plinear' into core, btnn, ctnn
+    core is for core algorithms which now only contains baisc binarization
+    btnn stands for binarized ternary neural network which was basic plinear
+    bctnn stands for binarized complex ternary neural network which was plinear_complex
+
 - Reformed folder structure
     Seperating dev logs from README.md
     Now presenting binarized ternary linear as btnn and binarized complex ternary linear as ctnn
