@@ -59,8 +59,15 @@ def test(model, loader, criterion, device):
     return total_loss / len(loader), total_correct / len(loader.dataset)
 
 # GPU 또는 CPU 설정
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+if torch.cuda.is_available():
+        device = torch.device("cuda")
+elif torch.backends.mps.is_available():
+    device = torch.device("mps")
+else:
+    device = torch.device("cpu")
 model = model.to(device)
+
+print(f"Using device: {device}")
 
 # 학습 및 평가 루프
 epochs = 100
