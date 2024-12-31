@@ -1,12 +1,29 @@
 # Dev Logs
 ## version 0.2
 ### 0.2.0
-#### 0.2.0.0 
+
+#### 0.2.0.2
+##### 31th December, 2024
+- included 3 modules into plinear again.
+    plinear is not yet that much magnificant.
+
+#### 0.2.0.1
+##### 31th December, 2024
+- btnn.conv2D layer on working
+    not yet tested
+
+- added core to distribution
+    plinear was not working
+
+- fixed README.md
+    to working example
+
+#### 0.2.0.0
 ##### 30th December, 2024
 - Removed softmax in qkv calculation
     stablized learning curve
 
-- Splited 'plinear' into core, btnn, ctnn
+- Splited 'plinear' into core, btnn, bctnn
     core is for core algorithms which now only contains baisc binarization
     btnn stands for binarized ternary neural network which was basic plinear
     bctnn stands for binarized complex ternary neural network which was plinear_complex

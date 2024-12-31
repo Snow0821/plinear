@@ -3,8 +3,8 @@ from torch import nn
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 
-from models import vit_example as vit
-import btnn
+from plinear.models import vit_example as vit
+from plinear import btnn
 
 # MNIST 데이터셋 로드
 transform = transforms.Compose([

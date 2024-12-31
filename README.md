@@ -13,14 +13,13 @@ pip install plinear
 ```
 import torch
 import torch.nn as nn
-import plinear
-import plinear.btnn as btnn
+from plinear import btnn
 
 class SimpleNN(nn.Module):
     def __init__(self):
         super(SimpleNN, self).__init__()
-        self.fc1 = btnn.linear(28*28, 128)
-        self.fc2 = btnn.linear(128, 10)
+        self.fc1 = btnn.Linear(28*28, 128)
+        self.fc2 = btnn.Linear(128, 10)
 
     def forward(self, x):
         x = torch.flatten(x, 1)

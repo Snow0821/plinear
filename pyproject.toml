@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "plinear"
-version = "0.2.0.0"
+version = "0.2.0.2"
 description = "parallel neural network layer for binarization of ternarization - quantized layers from the beginning"
 authors = ["Choi Soon Ho <sosaror@gmail.com>"]
 license = "MIT"
@@ -8,9 +8,7 @@ readme = "README.md"
 repository = "https://github.com/Snow0821/plinear"
 
 packages = [
-    { include = "btnn" },
-    { include = "ctnn" },
-    { include = "models" }
+    { include = "plinear" }
 ]
 
 [tool.poetry.dependencies]
