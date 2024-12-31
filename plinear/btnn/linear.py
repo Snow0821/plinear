@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from core.posNet import posNet
+from plinear.core import posNet
 
 class Linear(nn.Module):
     def __init__(self, x, y):

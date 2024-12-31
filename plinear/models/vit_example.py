@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from core.RMSNorm import RMSNorm
+from plinear.core import RMSNorm
 
 class PatchEmbedding(nn.Module):
     def __init__(self, img_size, patch_size, in_channels, embed_dim):

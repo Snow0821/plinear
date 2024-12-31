@@ -6,6 +6,8 @@ from torch.utils.data import DataLoader
 from plinear.models import vit_example as vit
 from plinear import btnn
 
+from tqdm import tqdm
+
 # MNIST 데이터셋 로드
 transform = transforms.Compose([
     transforms.Resize((32, 32)),
@@ -14,8 +16,8 @@ transform = transforms.Compose([
 train_dataset = datasets.MNIST(root='./data', train=True, transform=transform, download=True)
 test_dataset = datasets.MNIST(root='./data', train=False, transform=transform, download=True)
 
-train_loader = DataLoader(train_dataset, batch_size=64, shuffle=True)
-test_loader = DataLoader(test_dataset, batch_size=64, shuffle=False)
+train_loader = DataLoader(train_dataset, batch_size=4, shuffle=True)
+test_loader = DataLoader(test_dataset, batch_size=4, shuffle=False)
 
 # 모델 초기화
 model = vit.VisionTransformer(
@@ -32,17 +34,34 @@ optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
 def train(model, loader, criterion, optimizer, device):
     model.train()
     total_loss, total_correct = 0, 0
-    for images, labels in loader:
+
+    # tqdm Progress Bar 추가
+    progress_bar = tqdm(enumerate(loader), total=len(loader), desc="Training", leave=True)
+
+    for batch_idx, (images, labels) in progress_bar:
         images, labels = images.to(device), labels.to(device)
+        
         optimizer.zero_grad()
         outputs = model(images)
         loss = criterion(outputs, labels)
         loss.backward()
         optimizer.step()
 
+        # 손실 및 정확도 계산
         total_loss += loss.item()
         total_correct += (outputs.argmax(1) == labels).sum().item()
-    return total_loss / len(loader), total_correct / len(loader.dataset)
+
+        # Progress Bar에 실시간 업데이트
+        progress_bar.set_postfix({
+            "Batch Loss": loss.item(),
+            "Avg Loss": total_loss / (batch_idx + 1),
+            "Accuracy": total_correct / ((batch_idx + 1) * loader.batch_size)
+        })
+
+    # 최종 평균 손실 및 정확도 반환
+    avg_loss = total_loss / len(loader)
+    avg_accuracy = total_correct / len(loader.dataset)
+    return avg_loss, avg_accuracy
 
 # 테스트 함수
 def test(model, loader, criterion, device):
@@ -60,7 +79,7 @@ def test(model, loader, criterion, device):
 
 # GPU 또는 CPU 설정
 if torch.cuda.is_available():
-        device = torch.device("cuda")
+    device = torch.device("cuda")
 elif torch.backends.mps.is_available():
     device = torch.device("mps")
 else:

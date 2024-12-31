@@ -2,8 +2,14 @@
 ## version 0.2
 ### 0.2.0
 
+#### 0.2.0.3
+##### 31th December, 2024
+- fixed minor bugs
+    corrected include error from btnn
+
 #### 0.2.0.2
 ##### 31th December, 2024
+
 - included 3 modules into plinear again.
     plinear is not yet that much magnificant.
 
