@@ -2,38 +2,33 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from core.posNet import posNet
+from plinear.core import posNet
 
-class PLinear_Complex(nn.Module):
-    def __init__(self, ins, outs):
-        super(PLinear_Complex, self).__init__()
-        self.real_pos = nn.Linear(ins, outs)
-        self.real_neg = nn.Linear(ins, outs)
-        self.complex_pos = nn.Linear(ins, outs)
-        self.complex_neg = nn.Linear(ins, outs)
+class Linear(nn.Module):
+    def __init__(self, x, y):
+        super(Linear, self).__init__()
+        self.pr = nn.Linear(x, y)
+        self.nr = nn.Linear(x, y)
+        self.pi = nn.Linear(x, y)
+        self.ni = nn.Linear(x, y)
 
-        torch.nn.init.uniform_(self.real_pos.weight, -1, 1)
-        torch.nn.init.uniform_(self.real_neg.weight, -1, 1)
-        torch.nn.init.uniform_(self.complex_pos.weight, -1, 1)
-        torch.nn.init.uniform_(self.complex_neg.weight, -1, 1)
+        torch.nn.init.uniform_(self.pr.weight, -1, 1)
+        torch.nn.init.uniform_(self.nr.weight, -1, 1)
+        torch.nn.init.uniform_(self.pi.weight, -1, 1)
+        torch.nn.init.uniform_(self.ni.weight, -1, 1)
     
-    def forward(self, x_real: torch.Tensor, x_complex: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
-        real_pos = self.real_pos.weight
-        real_neg = self.real_neg.weight
-        complex_pos = self.complex_pos.weight
-        complex_neg = self.complex_neg.weight
+    def forward(self, xr, xi):
+        pr = self.pr.weight
+        nr = self.nr.weight
+        pi = self.pi.weight
+        ni = self.ni.weight
 
-        real_pos_q = posNet(real_pos)
-        real_neg_q = posNet(real_neg)
-        complex_pos_q = posNet(complex_pos)
-        complex_neg_q = posNet(complex_neg)
+        qpr = posNet(pr) - pr.detach() + pr
+        qnr = posNet(nr) - nr.detach() + nr
+        qpi = posNet(pi) - pi.detach() + pi
+        qni = posNet(ni) - ni.detach() + ni
 
-        real_pos_q = real_pos_q - real_pos.detach() + real_pos
-        real_neg_q = real_neg_q - real_neg_q.detach() + real_neg_q
-        complex_pos_q = complex_pos_q - complex_pos_q.detach() + complex_pos_q
-        complex_neg_q = complex_neg_q - complex_neg_q.detach() + complex_neg_q
+        yr = F.linear(xr, qpr) - F.linear(xr, qnr) - F.linear(xi, qpi) + F.linear(xi, qni)
+        yi = F.linear(xr, qpi) - F.linear(xr, qni) + F.linear(xi, qpr) - F.linear(xi, qnr)
 
-        y_real = F.linear(x_real, real_pos_q) - F.linear(x_real, real_neg_q) - F.linear(x_complex, complex_pos_q) + F.linear(x_complex, complex_neg_q)
-        y_complex = F.linear(x_real, complex_pos_q) - F.linear(x_real, complex_neg_q) + F.linear(x_complex, real_pos_q) - F.linear(x_complex, real_neg_q)
-
-        return y_real, y_complex
+        return yr, yi

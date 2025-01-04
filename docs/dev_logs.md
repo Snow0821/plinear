@@ -2,6 +2,11 @@
 ## version 0.2
 ### 0.2.0
 
+#### 0.2.0.4
+##### 2nd January, 2025
+- fixed major bug
+    bctnn (binarized complex ternary neural network) has been calculated incorrectly
+
 #### 0.2.0.3
 ##### 31th December, 2024
 - fixed minor bugs
