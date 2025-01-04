@@ -20,6 +20,7 @@ tdqm = "^0.0.1"
 torchinfo = "^1.8.0"
 huggingface-hub = {extras = ["cli"], version = "^0.27.0"}
 datasets = "^3.2.0"
+matplotlib = "^3.10.0"
 
 [build-system]
 requires = ["poetry-core"]
