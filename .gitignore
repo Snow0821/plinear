@@ -166,3 +166,6 @@ performance_test/
 .DS_Store
 
 Experiments/binarization_of_ternary_neural_networks/data/
+
+*.tar.gz
+*.ckpt
