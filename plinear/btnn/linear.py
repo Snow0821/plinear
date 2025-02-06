@@ -10,8 +10,8 @@ class Linear(nn.Module):
         self.pr = nn.Linear(x, y)
         self.nr = nn.Linear(x, y)
 
-        torch.nn.init.uniform_(self.real_pos.weight, -1, 1)
-        torch.nn.init.uniform_(self.real_neg.weight, -1, 1)
+        torch.nn.init.uniform_(self.pr.weight, -1, 1)
+        torch.nn.init.uniform_(self.nr.weight, -1, 1)
 
     def forward(self, x):
         pr = self.pr.weight
