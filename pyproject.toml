@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "plinear"
-version = "0.2.0.3"
+version = "0.2.0.4"
 description = "parallel neural network layer for binarization of ternarization - quantized layers from the beginning"
 authors = ["Choi Soon Ho <sosaror@gmail.com>"]
 license = "MIT"
